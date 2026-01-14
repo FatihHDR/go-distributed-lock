@@ -1,0 +1,42 @@
+# Git
+.git
+.gitignore
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Binaries
+*.exe
+*.dll
+*.so
+*.dylib
+node
+/bin/
+/dist/
+
+# Test
+*.test
+*.out
+coverage.html
+
+# Docs (not needed in image)
+docs/
+*.md
+!proto/README.md
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temp
+tmp/
+.tmp/
+*.log
+
+# Docker
+Dockerfile
+docker-compose*.yml
+.dockerignore
