@@ -30,7 +30,7 @@ func NewTTLManager(store *LockStore, onExpired ExpiredCallback) *TTLManager {
 		store:     store,
 		interval:  DefaultCleanupInterval,
 		onExpired: onExpired,
-		stopCh:    make(chan struct{}),
+		// stopCh is created in Start(), not here
 	}
 }
 
@@ -50,10 +50,11 @@ func (m *TTLManager) Start() {
 	}
 	m.running = true
 	m.stopCh = make(chan struct{})
+	interval := m.interval
 	m.mu.Unlock()
 
 	m.wg.Add(1)
-	go m.cleanupLoop()
+	go m.cleanupLoop(interval)
 }
 
 // Stop halts the TTL cleanup goroutine
@@ -70,11 +71,18 @@ func (m *TTLManager) Stop() {
 	m.wg.Wait()
 }
 
+// IsRunning returns whether the manager is running
+func (m *TTLManager) IsRunning() bool {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	return m.running
+}
+
 // cleanupLoop periodically removes expired locks
-func (m *TTLManager) cleanupLoop() {
+func (m *TTLManager) cleanupLoop(interval time.Duration) {
 	defer m.wg.Done()
 
-	ticker := time.NewTicker(m.interval)
+	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
 
 	for {
