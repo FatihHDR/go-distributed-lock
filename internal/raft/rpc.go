@@ -1,5 +1,7 @@
 package raft
 
+import "time"
+
 // RequestVoteArgs contains arguments for RequestVote RPC
 type RequestVoteArgs struct {
 	Term         uint64 `json:"term"`           // Candidate's term
@@ -76,7 +78,7 @@ func (rn *RaftNode) HandleRequestVote(args *RequestVoteArgs) *RequestVoteReply {
 		rn.raftLog.IsUpToDate(args.LastLogIndex, args.LastLogTerm) {
 		rn.votedFor = args.CandidateID
 		reply.VoteGranted = true
-		rn.lastHeartbeat = rn.now() // Reset election timer
+		rn.lastHeartbeat = time.Now() // Reset election timer
 		rn.persistState()
 	}
 
@@ -110,7 +112,7 @@ func (rn *RaftNode) HandleAppendEntries(args *AppendEntriesArgs) *AppendEntriesR
 		rn.becomeFollower(args.Term)
 	}
 	rn.leaderID = args.LeaderID
-	rn.lastHeartbeat = rn.now()
+	rn.lastHeartbeat = time.Now()
 
 	// Reply false if log doesn't contain an entry at prevLogIndex
 	// whose term matches prevLogTerm (§5.3)
@@ -188,7 +190,7 @@ func (rn *RaftNode) HandleInstallSnapshot(args *InstallSnapshotArgs) *InstallSna
 	}
 
 	rn.leaderID = args.LeaderID
-	rn.lastHeartbeat = rn.now()
+	rn.lastHeartbeat = time.Now()
 
 	// If snapshot is done, apply it
 	if args.Done {
@@ -221,9 +223,4 @@ func (rn *RaftNode) HandleInstallSnapshot(args *InstallSnapshotArgs) *InstallSna
 	}
 
 	return reply
-}
-
-// now returns current time (allows mocking in tests)
-func (rn *RaftNode) now() interface{} {
-	return nil // Will be replaced with time.Now() in actual implementation
 }
