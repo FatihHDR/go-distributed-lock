@@ -7,11 +7,12 @@ import (
 )
 
 var (
-	ErrLockNotFound = errors.New("lock not found")
-	ErrLockHeld     = errors.New("lock already held by another owner")
-	ErrNotLockOwner = errors.New("not the lock owner")
-	ErrInvalidTTL   = errors.New("invalid TTL value")
-	ErrLockExpired  = errors.New("lock has expired")
+	ErrLockNotFound     = errors.New("lock not found")
+	ErrLockHeld         = errors.New("lock already held by another owner")
+	ErrNotLockOwner     = errors.New("not the lock owner")
+	ErrInvalidTTL       = errors.New("invalid TTL value")
+	ErrLockExpired      = errors.New("lock has expired")
+	ErrOperationTimeout = errors.New("operation timed out")
 )
 
 // Engine manages distributed lock operations
