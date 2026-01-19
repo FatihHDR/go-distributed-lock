@@ -17,10 +17,11 @@ var (
 
 // Engine manages distributed lock operations
 type Engine struct {
-	store          *LockStore
-	ttlMgr         *TTLManager
-	mu             sync.Mutex
-	versionCounter uint64
+	store             *LockStore
+	ttlMgr            *TTLManager
+	mu                sync.Mutex
+	versionCounter    uint64
+	onExpiredCallback func(*Lock)
 }
 
 // NewEngine creates a new lock engine
@@ -45,7 +46,16 @@ func (e *Engine) Stop() {
 
 // onLockExpired is called when a lock expires
 func (e *Engine) onLockExpired(lock *Lock) {
-	// Hook for future use (notifications, metrics, etc.)
+	if e.onExpiredCallback != nil {
+		e.onExpiredCallback(lock)
+	}
+}
+
+// SetOnExpiredCallback sets a callback for lock expiration events
+func (e *Engine) SetOnExpiredCallback(fn func(*Lock)) {
+	e.mu.Lock()
+	defer e.mu.Unlock()
+	e.onExpiredCallback = fn
 }
 
 // nextVersion generates the next version number
